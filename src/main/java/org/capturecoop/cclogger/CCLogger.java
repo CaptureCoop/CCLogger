@@ -156,6 +156,10 @@ public class CCLogger {
         }
     }
 
+    public static String getHTMLLog() {
+        return htmlLog;
+    }
+
     public static File getLogFile() {
         return logFile;
     }
