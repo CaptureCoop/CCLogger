@@ -18,6 +18,7 @@ public class CCLogger {
     private static final ArrayList<LogMessage> preEnabledMessages = new ArrayList<>();
     private static String logFormat = "";
     private static String htmlLog = "";
+    private static String logFolder;
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
 
     private CCLogger() {}
@@ -109,13 +110,13 @@ public class CCLogger {
         if(console != null)
             console.update();
 
-        if(!SnipSniper.isDemo() && SnipSniper.getLogFolder() != null) {
+        if(!SnipSniper.isDemo() && logFolder != null) {
             if (logFile == null) {
                 LocalDateTime now = LocalDateTime.now();
                 String filename = now.toString().replace(".", "_").replace(":", "_");
                 filename += ".log";
 
-                logFile = new File(SnipSniper.getLogFolder() + filename);
+                logFile = new File(logFolder + filename);
                 try {
                     if (logFile.createNewFile())
                         CCLogger.log("Created new logfile at: " + logFile.getAbsolutePath(), LogLevel.INFO);
