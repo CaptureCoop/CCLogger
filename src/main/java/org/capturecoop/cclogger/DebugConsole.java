@@ -1,9 +1,14 @@
 package org.capturecoop.cclogger;
 
+import org.capturecoop.ccutils.utils.LinkUtils;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class DebugConsole extends JFrame{
@@ -12,13 +17,19 @@ public class DebugConsole extends JFrame{
     private int fontSize = 20;
     private final int scrollSpeed = 20;
     private final boolean[] keys = new boolean[4096];
+    private BufferedImage icon;
 
     public DebugConsole () {
         setTitle("Debug Console");
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         setSize((int)(size.getWidth()/2), (int)(size.getHeight()/2));
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setIconImage(ImageManager.getImage("icons/console.png"));
+        try {
+            icon = ImageIO.read(DebugConsole.class.getResource("/org/capturecoop/cclogger/resources/console.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        setIconImage(icon);
         content.setOpaque(true);
         content.setContentType("text/html");
         content.setEditable(false);
@@ -71,7 +82,7 @@ public class DebugConsole extends JFrame{
 
         content.addHyperlinkListener(hle -> {
             if (HyperlinkEvent.EventType.ACTIVATED.equals(hle.getEventType())) {
-                Links.openLink(hle.getURL().toString());
+                LinkUtils.openLink(hle.getURL().toString());
             }
         });
 
