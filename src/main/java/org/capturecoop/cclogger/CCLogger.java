@@ -18,6 +18,7 @@ public class CCLogger {
     private static final ArrayList<LogMessage> preEnabledMessages = new ArrayList<>();
     private static String logFormat = "";
     private static String htmlLog = "";
+    private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
 
     private CCLogger() {}
 
@@ -96,9 +97,8 @@ public class CCLogger {
 
         String finalMsg = org.apache.commons.text.StringEscapeUtils.escapeHtml4(msg.toString()).replaceAll(" ", "&nbsp;");
         finalMsg = finalMsg.replaceAll("%newline%", "<br>");
-        if(SnipSniper.getConfig() != null) {
-            String baseTreeLink = "https://github.com/CaptureCoop/SnipSniper/tree/" + SnipSniper.getVersion().getGithash() + "/src/main/java/";
-            String link = baseTreeLink + currentStackTrace.getClassName().replaceAll("\\.", "/") + ".java#L" + currentStackTrace.getLineNumber();
+        if(gitCodePathURL != null) {
+            String link = gitCodePathURL + currentStackTrace.getClassName().replaceAll("\\.", "/") + ".java#L" + currentStackTrace.getLineNumber();
             finalMsg = finalMsg.replace(":" + currentStackTrace.getLineNumber() + "]", ":" + currentStackTrace.getLineNumber() + " <a href='" + link + "'>@</a>]");
         }
         String htmlLine = "<p style='margin-top:0; white-space: nowrap;'><font color='" + getLevelColor(level) + "'>" + finalMsg + "</font></p>";
