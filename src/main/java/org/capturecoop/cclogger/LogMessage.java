@@ -1,5 +1,7 @@
 package org.capturecoop.cclogger;
 
+import java.time.LocalDateTime;
+
 public class LogMessage {
     private final LogLevel level;
     private final String message;

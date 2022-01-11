@@ -1,6 +1,13 @@
 package org.capturecoop.cclogger;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -9,6 +16,8 @@ public class CCLogger {
     private static final int MAX_LEVEL_LENGTH = LogLevel.WARNING.toString().length();
     private static boolean enabled = false;
     private static final ArrayList<LogMessage> preEnabledMessages = new ArrayList<>();
+    private static String logFormat = "";
+    private static String htmlLog = "";
 
     private CCLogger() {}
 
@@ -21,7 +30,7 @@ public class CCLogger {
     }
 
     public static void log(String message, LogLevel level, Object... args) {
-        log(net.snipsniper.utils.StringUtils.format(message, args), level);
+        log(org.capturecoop.ccutils.utils.StringUtils.format(message, args), level);
     }
 
     public static void logStacktrace(LogLevel level) {
@@ -43,7 +52,7 @@ public class CCLogger {
 
     private static void logStacktraceInternal(String message, LogLevel level) {
         System.out.println(message);
-        htmlLog += "<p style='margin-top:0; white-space: nowrap;'><font color='" + getLevelColor(level) + "'>" + escapeHtml4(message).replaceAll("\n", "<br>") + "</font></p>";
+        htmlLog += "<p style='margin-top:0; white-space: nowrap;'><font color='" + getLevelColor(level) + "'>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(message).replaceAll("\n", "<br>") + "</font></p>";
         htmlLog += "<br>";
     }
 
@@ -55,9 +64,8 @@ public class CCLogger {
         if(level == LogLevel.DEBUG && !SnipSniper.isDebug())
             return;
 
-        StringBuilder msg = new StringBuilder(SnipSniper.getConfig().getString(ConfigHelper.MAIN.logFormat));
-        msg = new StringBuilder(net.snipsniper.utils.StringUtils.formatDateArguments(msg.toString(), time));
-        msg = new StringBuilder(net.snipsniper.utils.StringUtils.formatTimeArguments(msg.toString(), time));
+        StringBuilder msg = new StringBuilder(logFormat);
+        msg = new StringBuilder(org.capturecoop.ccutils.utils.StringUtils.formatDateTimeString(msg.toString(), time));
 
         String levelString = level.toString();
 
@@ -86,7 +94,7 @@ public class CCLogger {
 
         System.out.println(msg.toString().replaceAll("%newline%", "\n"));
 
-        String finalMsg = escapeHtml4(msg.toString()).replaceAll(" ", "&nbsp;");
+        String finalMsg = org.apache.commons.text.StringEscapeUtils.escapeHtml4(msg.toString()).replaceAll(" ", "&nbsp;");
         finalMsg = finalMsg.replaceAll("%newline%", "<br>");
         if(SnipSniper.getConfig() != null) {
             String baseTreeLink = "https://github.com/CaptureCoop/SnipSniper/tree/" + SnipSniper.getVersion().getGithash() + "/src/main/java/";
@@ -110,10 +118,10 @@ public class CCLogger {
                 logFile = new File(SnipSniper.getLogFolder() + filename);
                 try {
                     if (logFile.createNewFile())
-                        LogManager.log("Created new logfile at: " + logFile.getAbsolutePath(), LogLevel.INFO);
+                        CCLogger.log("Created new logfile at: " + logFile.getAbsolutePath(), LogLevel.INFO);
                 } catch (IOException ioException) {
-                    LogManager.log("Could not create logfile at \"%c\". Printing to console as well just in case!", LogLevel.ERROR, logFile.getAbsolutePath());
-                    LogManager.logStacktrace(ioException, LogLevel.ERROR);
+                    CCLogger.log("Could not create logfile at \"%c\". Printing to console as well just in case!", LogLevel.ERROR, logFile.getAbsolutePath());
+                    CCLogger.logStacktrace(ioException, LogLevel.ERROR);
                     ioException.printStackTrace();
                 }
             }
@@ -123,8 +131,8 @@ public class CCLogger {
             try {
                 Files.write(Paths.get(logFile.getAbsolutePath()), msg.toString().getBytes(), StandardOpenOption.APPEND);
             } catch (IOException ioException) {
-                LogManager.log("Could not create logfile at \"%c\". Printing to console as well just in case!", LogLevel.ERROR, logFile.getAbsolutePath());
-                LogManager.logStacktrace(ioException, LogLevel.ERROR);
+                CCLogger.log("Could not create logfile at \"%c\". Printing to console as well just in case!", LogLevel.ERROR, logFile.getAbsolutePath());
+                CCLogger.logStacktrace(ioException, LogLevel.ERROR);
                 ioException.printStackTrace();
             }
         }
@@ -140,7 +148,7 @@ public class CCLogger {
     }
 
     public static void setEnabled(boolean enabled) {
-        LogManager.enabled = enabled;
+        CCLogger.enabled = enabled;
         if(enabled) {
             for(LogMessage msg : preEnabledMessages)
                 logInternal(msg.getMessage(), msg.getLevel(), msg.getTime());
