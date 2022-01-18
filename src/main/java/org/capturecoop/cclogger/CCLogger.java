@@ -2,6 +2,7 @@ package org.capturecoop.cclogger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import sun.rmi.log.ReliableLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class CCLogger {
     private static File logFile;
     private static final int MAX_LEVEL_LENGTH = LogLevel.WARNING.toString().length();
     private static boolean paused = false;
-    private static final ArrayList<LogMessage> preEnabledMessages = new ArrayList<>();
+    private static final ArrayList<String> preFileMessages = new ArrayList<>();
     private static String logFormat = "[%hour%:%minute%:%second%:%ms%] [%level%]%levelspace% [%filename%.%method%:%line%]: %message%";
     private static String htmlLog = "";
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
@@ -29,10 +30,6 @@ public class CCLogger {
     private CCLogger() {}
 
     public static void log(String message, LogLevel level) {
-        if(paused) {
-            preEnabledMessages.add(new LogMessage(level, message, LocalDateTime.now()));
-            return;
-        }
         logInternal(message, level, LocalDateTime.now());
     }
 
@@ -115,17 +112,28 @@ public class CCLogger {
         //if(console != null)
         //    console.update();
 
+        msg.append("\n");
         if(logFile != null) {
-            msg.append("\n");
-            try {
-                Files.write(Paths.get(logFile.getAbsolutePath()), msg.toString().getBytes(), StandardOpenOption.APPEND);
-            } catch (IOException ioException) {
-                String path = logFile.getAbsolutePath();
-                logFile = null;
-                CCLogger.log("Could not write to logfile at \"%c\". Disabling logFile & Printing to console as well just in case!", LogLevel.ERROR, path);
-                CCLogger.logStacktrace(ioException, LogLevel.ERROR);
-                ioException.printStackTrace();
+            if(!preFileMessages.isEmpty()) {
+                for(String m : preFileMessages) {
+                    writeToFile(m);
+                }
+                preFileMessages.clear();
             }
+            writeToFile(msg.toString());
+        } else {
+            preFileMessages.add(msg.toString());
+        }
+    }
+
+    public static void writeToFile(String message) {
+        try {
+            Files.write(Paths.get(logFile.getAbsolutePath()), message.getBytes(), StandardOpenOption.APPEND);
+        } catch (IOException ioException) {
+            String path = logFile.getAbsolutePath();
+            logFile = null;
+            CCLogger.log("Could not write to logfile at \"%c\". Disabling logFile & Printing to console as well just in case!", LogLevel.ERROR, path);
+            CCLogger.logStacktrace(ioException, LogLevel.ERROR);
         }
     }
 
@@ -138,21 +146,22 @@ public class CCLogger {
         return color;
     }
 
-    public static void setPaused(boolean paused) {
-        CCLogger.paused = paused;
-        if(!paused) {
-            for(LogMessage msg : preEnabledMessages)
-                logInternal(msg.getMessage(), msg.getLevel(), msg.getTime());
-            preEnabledMessages.clear();
-        }
-    }
-
     public static String getHTMLLog() {
         return htmlLog;
     }
 
     public static void setLogFile(File logFile) {
         CCLogger.logFile = logFile;
+        if(!logFile.exists()) {
+            try {
+                if (logFile.createNewFile()) {
+                    CCLogger.log("Set log file does not exist. Creating: ", LogLevel.INFO, logFile.getAbsolutePath());
+                }
+            } catch (IOException ioException) {
+                CCLogger.log("Set log file does not exist and could not be created. File: ", LogLevel.ERROR, logFile.getAbsolutePath());
+                CCLogger.logStacktrace(ioException, LogLevel.ERROR);
+            }
+        }
     }
 
     public static File getLogFile() {
