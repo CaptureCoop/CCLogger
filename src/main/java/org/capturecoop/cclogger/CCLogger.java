@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class CCLogger {
+    private static boolean enabled = false;
     private static File logFile;
     private static final int MAX_LEVEL_LENGTH = LogLevel.WARNING.toString().length();
     private static final ArrayList<String> preFileMessages = new ArrayList<>();
@@ -29,14 +30,23 @@ public class CCLogger {
     private CCLogger() {}
 
     public static void log(String message, LogLevel level) {
+        if(!enabled)
+            return;
+
         logInternal(message, level);
     }
 
     public static void log(String message, LogLevel level, Object... args) {
+        if(!enabled)
+            return;
+
         log(org.capturecoop.ccutils.utils.StringUtils.format(message, args), level);
     }
 
     public static void logStacktrace(LogLevel level) {
+        if(!enabled)
+            return;
+
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         final int STACKTRACE_START = 2;
 
@@ -50,10 +60,16 @@ public class CCLogger {
     }
 
     public static void logStacktrace(Throwable exception, LogLevel level) {
+        if(!enabled)
+            return;
+
         logStacktraceInternal(ExceptionUtils.getStackTrace(exception), level);
     }
 
     private static void logStacktraceInternal(String message, LogLevel level) {
+        if(!enabled)
+            return;
+
         System.out.println(message);
         writeToFile(message);
         htmlLog += "<p style='margin-top:0; white-space: nowrap;'><font color='" + getLevelColor(level) + "'>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(message).replaceAll("\n", "<br>") + "</font></p>";
@@ -62,6 +78,9 @@ public class CCLogger {
 
     //The reason for this is that this way we can take index 3 of stack trace at all times
     private static void logInternal(String message, LogLevel level) {
+        if(!enabled)
+            return;
+
         if(level == LogLevel.DEBUG && logLevel == LogLevel.DEBUG)
             return;
 
@@ -174,6 +193,14 @@ public class CCLogger {
             }
             preFileMessages.clear();
         }
+    }
+
+    public static void setEnabled(boolean enabled) {
+        CCLogger.enabled = enabled;
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
     }
 
     public static File getLogFile() {

@@ -1,6 +1,12 @@
 # CCLogger
 Logging library
 
+## Debug Console
+
+This library includes a Debug Console that can optionally be used.
+However without a Look and feel this may look bad and zooming may not work.
+We personally use FlatLaf, which works great when used with the Debug Console.
+
 ## How to use with Gradle:
 
 build.gradle:
