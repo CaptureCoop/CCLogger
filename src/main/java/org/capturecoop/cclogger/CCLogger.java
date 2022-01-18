@@ -147,6 +147,7 @@ public class CCLogger {
 
     public static void writeToFile(String message) {
         if(logFile != null) {
+            ensureLogFile();
             try {
                 Files.write(Paths.get(logFile.getAbsolutePath()), message.getBytes(), StandardOpenOption.APPEND);
             } catch (IOException ioException) {
@@ -157,6 +158,19 @@ public class CCLogger {
             }
         } else {
             preFileMessages.add(message);
+        }
+    }
+
+    private static void ensureLogFile() {
+        if(!logFile.exists()) {
+            try {
+                if (logFile.createNewFile()) {
+                    CCLogger.log("Set log file does not exist. Creating: ", LogLevel.INFO, logFile.getAbsolutePath());
+                }
+            } catch (IOException ioException) {
+                CCLogger.log("Set log file does not exist and could not be created. File: ", LogLevel.ERROR, logFile.getAbsolutePath());
+                CCLogger.logStacktrace(ioException, LogLevel.ERROR);
+            }
         }
     }
 
@@ -175,16 +189,7 @@ public class CCLogger {
 
     public static void setLogFile(File logFile) {
         CCLogger.logFile = logFile;
-        if(!logFile.exists()) {
-            try {
-                if (logFile.createNewFile()) {
-                    CCLogger.log("Set log file does not exist. Creating: ", LogLevel.INFO, logFile.getAbsolutePath());
-                }
-            } catch (IOException ioException) {
-                CCLogger.log("Set log file does not exist and could not be created. File: ", LogLevel.ERROR, logFile.getAbsolutePath());
-                CCLogger.logStacktrace(ioException, LogLevel.ERROR);
-            }
-        }
+        ensureLogFile();
         refreshPreFileMessages();
     }
 
