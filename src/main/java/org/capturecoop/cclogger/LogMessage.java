@@ -6,7 +6,7 @@ public class LogMessage {
     private final LogLevel level;
     private final String message;
     private final LocalDateTime time;
-    private boolean isStacktrace;
+    private final boolean isStacktrace;
 
     public LogMessage(LogLevel level, String message, LocalDateTime time, boolean isException) {
         this.level = level;
