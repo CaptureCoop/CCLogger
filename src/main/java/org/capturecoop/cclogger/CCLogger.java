@@ -21,6 +21,7 @@ public class CCLogger {
     private static String logFormat = "[%hour%:%minute%:%second%:%ms%] [%level%]%levelspace% [%filename%.%method%:%line%]: %message%";
     private static String htmlLog = "";
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
+    private static String gitCodeClassPath; //Example: org.snipsniper
     private static DebugConsole console;
     private static final String THIS_CLASSPATH = "org.capturecoop.cclogger.CCLogger";
 
@@ -138,7 +139,7 @@ public class CCLogger {
 
         String finalMsg = org.apache.commons.text.StringEscapeUtils.escapeHtml4(msg.toString()).replaceAll(" ", "&nbsp;");
         finalMsg = finalMsg.replaceAll("%newline%", "<br>");
-        if(gitCodePathURL != null) {
+        if(gitCodePathURL != null && (gitCodeClassPath == null || gitCodeClassPath.isEmpty() || currentStackTrace.getClassName().contains(gitCodeClassPath))) {
             String link = gitCodePathURL + currentStackTrace.getClassName().replaceAll("\\.", "/") + ".java#L" + currentStackTrace.getLineNumber();
             finalMsg = finalMsg.replace(":" + currentStackTrace.getLineNumber() + "]", ":" + currentStackTrace.getLineNumber() + " <a href='" + link + "'>@</a>]");
         }
@@ -245,6 +246,10 @@ public class CCLogger {
 
     public static void setGitCodePathURL(String url) {
         gitCodePathURL = url;
+    }
+
+    public static void setGitCodeClassPath(String classPath) {
+        gitCodeClassPath = classPath;
     }
 
     public static void setLogFormat(String logFormat) {
