@@ -29,7 +29,7 @@ public class CCLogger {
     private CCLogger() {}
 
     public static void log(String message, LogLevel level) {
-        logInternal(message, level, LocalDateTime.now());
+        logInternal(message, level);
     }
 
     public static void log(String message, LogLevel level, Object... args) {
@@ -55,17 +55,18 @@ public class CCLogger {
 
     private static void logStacktraceInternal(String message, LogLevel level) {
         System.out.println(message);
+        writeToFile(message);
         htmlLog += "<p style='margin-top:0; white-space: nowrap;'><font color='" + getLevelColor(level) + "'>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(message).replaceAll("\n", "<br>") + "</font></p>";
         htmlLog += "<br>";
     }
 
     //The reason for this is that this way we can take index 3 of stack trace at all times
-    private static void logInternal(String message, LogLevel level, LocalDateTime time) {
+    private static void logInternal(String message, LogLevel level) {
         if(level == LogLevel.DEBUG && logLevel == LogLevel.DEBUG)
             return;
 
         StringBuilder msg = new StringBuilder(logFormat);
-        msg = new StringBuilder(org.capturecoop.ccutils.utils.StringUtils.formatDateTimeString(msg.toString(), time));
+        msg = new StringBuilder(org.capturecoop.ccutils.utils.StringUtils.formatDateTimeString(msg.toString(), LocalDateTime.now()));
 
         String levelString = level.toString();
 
@@ -108,27 +109,21 @@ public class CCLogger {
             console.update();
 
         msg.append("\n");
-        if(logFile != null) {
-            if(!preFileMessages.isEmpty()) {
-                for(String m : preFileMessages) {
-                    writeToFile(m);
-                }
-                preFileMessages.clear();
-            }
-            writeToFile(msg.toString());
-        } else {
-            preFileMessages.add(msg.toString());
-        }
+        writeToFile(msg.toString());
     }
 
     public static void writeToFile(String message) {
-        try {
-            Files.write(Paths.get(logFile.getAbsolutePath()), message.getBytes(), StandardOpenOption.APPEND);
-        } catch (IOException ioException) {
-            String path = logFile.getAbsolutePath();
-            logFile = null;
-            CCLogger.log("Could not write to logfile at \"%c\". Disabling logFile & Printing to console as well just in case!", LogLevel.ERROR, path);
-            CCLogger.logStacktrace(ioException, LogLevel.ERROR);
+        if(logFile != null) {
+            try {
+                Files.write(Paths.get(logFile.getAbsolutePath()), message.getBytes(), StandardOpenOption.APPEND);
+            } catch (IOException ioException) {
+                String path = logFile.getAbsolutePath();
+                logFile = null;
+                CCLogger.log("Could not write to logfile at \"%c\". Disabling logFile & Printing to console as well just in case!", LogLevel.ERROR, path);
+                CCLogger.logStacktrace(ioException, LogLevel.ERROR);
+            }
+        } else {
+            preFileMessages.add(message);
         }
     }
 
@@ -157,6 +152,7 @@ public class CCLogger {
                 CCLogger.logStacktrace(ioException, LogLevel.ERROR);
             }
         }
+        refreshPreFileMessages();
     }
 
     public static void enableDebugConsole(boolean enabled) {
@@ -164,10 +160,20 @@ public class CCLogger {
             if(console == null)
                 console = new DebugConsole();
             console.setVisible(true);
+            console.update();
         } else {
             console.setVisible(false);
             console.dispose();
             console = null;
+        }
+    }
+
+    private static void refreshPreFileMessages() {
+        if(!preFileMessages.isEmpty()) {
+            for(String m : preFileMessages) {
+                writeToFile(m);
+            }
+            preFileMessages.clear();
         }
     }
 
