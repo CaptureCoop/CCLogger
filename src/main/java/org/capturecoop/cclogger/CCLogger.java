@@ -2,7 +2,6 @@ package org.capturecoop.cclogger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import sun.rmi.log.ReliableLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,11 +14,11 @@ import java.util.ArrayList;
 public class CCLogger {
     private static File logFile;
     private static final int MAX_LEVEL_LENGTH = LogLevel.WARNING.toString().length();
-    private static boolean paused = false;
     private static final ArrayList<String> preFileMessages = new ArrayList<>();
     private static String logFormat = "[%hour%:%minute%:%second%:%ms%] [%level%]%levelspace% [%filename%.%method%:%line%]: %message%";
     private static String htmlLog = "";
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
+    private static DebugConsole console;
 
     // Debug    -> Log everything + debug messages
     // Info     -> Log everything
@@ -62,9 +61,6 @@ public class CCLogger {
 
     //The reason for this is that this way we can take index 3 of stack trace at all times
     private static void logInternal(String message, LogLevel level, LocalDateTime time) {
-        if(paused)
-            return;
-
         if(level == LogLevel.DEBUG && logLevel == LogLevel.DEBUG)
             return;
 
@@ -108,9 +104,8 @@ public class CCLogger {
 
         htmlLog += htmlLine;
 
-        //DebugConsole console = SnipSniper.getDebugConsole();
-        //if(console != null)
-        //    console.update();
+        if(console != null)
+            console.update();
 
         msg.append("\n");
         if(logFile != null) {
@@ -164,12 +159,32 @@ public class CCLogger {
         }
     }
 
+    public static void enableDebugConsole(boolean enabled) {
+        if(enabled) {
+            if(console == null)
+                console = new DebugConsole();
+            console.setVisible(true);
+        } else {
+            console.setVisible(false);
+            console.dispose();
+            console = null;
+        }
+    }
+
     public static File getLogFile() {
         return logFile;
     }
 
-    public void setLogLevel(LogLevel logLevel) {
-        this.logLevel = logLevel;
+    public static void setGitCodePathURL(String url) {
+        gitCodePathURL = url;
+    }
+
+    public static void setLogFormat(String logFormat) {
+        CCLogger.logFormat = logFormat;
+    }
+
+    public static void setLogLevel(LogLevel logLevel) {
+        CCLogger.logLevel = logLevel;
     }
 
 }
