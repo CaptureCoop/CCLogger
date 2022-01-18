@@ -21,6 +21,12 @@ public class CCLogger {
     private static String logFolder;
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
 
+    // Debug    -> Log everything + debug messages
+    // Info     -> Log everything
+    // Warning  -> Log warnings and errors
+    // Error    -> Log errors
+    private static LogLevel logLevel = LogLevel.INFO;
+
     private CCLogger() {}
 
     public static void log(String message, LogLevel level) {
@@ -63,7 +69,7 @@ public class CCLogger {
         if(!enabled)
             return;
 
-        if(level == LogLevel.DEBUG && !SnipSniper.isDebug())
+        if(level == LogLevel.DEBUG && logLevel == LogLevel.DEBUG)
             return;
 
         StringBuilder msg = new StringBuilder(logFormat);
@@ -110,7 +116,7 @@ public class CCLogger {
         if(console != null)
             console.update();
 
-        if(!SnipSniper.isDemo() && logFolder != null) {
+        if(logFolder != null) {
             if (logFile == null) {
                 LocalDateTime now = LocalDateTime.now();
                 String filename = now.toString().replace(".", "_").replace(":", "_");
@@ -163,6 +169,10 @@ public class CCLogger {
 
     public static File getLogFile() {
         return logFile;
+    }
+
+    public void setLogLevel(LogLevel logLevel) {
+        this.logLevel = logLevel;
     }
 
 }
