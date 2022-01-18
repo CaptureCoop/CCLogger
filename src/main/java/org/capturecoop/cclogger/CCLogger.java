@@ -36,11 +36,11 @@ public class CCLogger {
             return;
 
         if(paused) {
-            pausedMessages.add(new LogMessage(level, message, LocalDateTime.now(), false));
+            pausedMessages.add(new LogMessage(level, message, LocalDateTime.now(), getStackTrace(), false));
             return;
         }
 
-        logInternal(message, level, LocalDateTime.now());
+        logInternal(message, level, LocalDateTime.now(), getStackTrace());
     }
 
     public static void log(String message, LogLevel level, Object... args) {
@@ -78,7 +78,7 @@ public class CCLogger {
             return;
 
         if(paused) {
-            pausedMessages.add(new LogMessage(level, message, LocalDateTime.now(), true));
+            pausedMessages.add(new LogMessage(level, message, LocalDateTime.now(), null, true));
             return;
         }
 
@@ -88,8 +88,14 @@ public class CCLogger {
         htmlLog += "<br>";
     }
 
+    private static StackTraceElement getStackTrace() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        final int STACKTRACE_START = 3;
+        return stackTrace[STACKTRACE_START];
+    }
+
     //The reason for this is that this way we can take index 3 of stack trace at all times
-    private static void logInternal(String message, LogLevel level, LocalDateTime time) {
+    private static void logInternal(String message, LogLevel level, LocalDateTime time, StackTraceElement currentStackTrace) {
         if(!enabled)
             return;
 
@@ -107,10 +113,6 @@ public class CCLogger {
             levelString = levelString.substring(0, MAX_LEVEL_LENGTH);
             msg = new StringBuilder(msg.toString().replace("%levelspace%", ""));
         }
-
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        final int STACKTRACE_START = 3;
-        StackTraceElement currentStackTrace = stackTrace[STACKTRACE_START];
 
         String classFilename = currentStackTrace.getFileName();
         if(classFilename != null)
@@ -212,7 +214,7 @@ public class CCLogger {
         if(!paused) {
             for(LogMessage msg : pausedMessages) {
                 if(!msg.isStacktrace()) {
-                    logInternal(msg.getMessage(), msg.getLevel(), msg.getTime());
+                    logInternal(msg.getMessage(), msg.getLevel(), msg.getTime(), msg.getStackTraceElement());
                 } else {
                     logStacktraceInternal(msg.getMessage(), msg.getLevel());
                 }
