@@ -13,9 +13,11 @@ import java.util.ArrayList;
 
 public class CCLogger {
     private static boolean enabled = false;
+    private static boolean paused = false;
     private static File logFile;
     private static final int MAX_LEVEL_LENGTH = LogLevel.WARNING.toString().length();
-    private static final ArrayList<String> preFileMessages = new ArrayList<>();
+    private static final ArrayList<String> preFileMessages = new ArrayList<>(); //These are printed but not written right away
+    private static final ArrayList<LogMessage> pausedMessages = new ArrayList<>(); //These need to be constructed once ready
     private static String logFormat = "[%hour%:%minute%:%second%:%ms%] [%level%]%levelspace% [%filename%.%method%:%line%]: %message%";
     private static String htmlLog = "";
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
@@ -33,7 +35,12 @@ public class CCLogger {
         if(!enabled)
             return;
 
-        logInternal(message, level);
+        if(paused) {
+            pausedMessages.add(new LogMessage(level, message, LocalDateTime.now(), false));
+            return;
+        }
+
+        logInternal(message, level, LocalDateTime.now());
     }
 
     public static void log(String message, LogLevel level, Object... args) {
@@ -70,6 +77,11 @@ public class CCLogger {
         if(!enabled)
             return;
 
+        if(paused) {
+            pausedMessages.add(new LogMessage(level, message, LocalDateTime.now(), true));
+            return;
+        }
+
         System.out.println(message);
         writeToFile(message);
         htmlLog += "<p style='margin-top:0; white-space: nowrap;'><font color='" + getLevelColor(level) + "'>" + org.apache.commons.text.StringEscapeUtils.escapeHtml4(message).replaceAll("\n", "<br>") + "</font></p>";
@@ -77,7 +89,7 @@ public class CCLogger {
     }
 
     //The reason for this is that this way we can take index 3 of stack trace at all times
-    private static void logInternal(String message, LogLevel level) {
+    private static void logInternal(String message, LogLevel level, LocalDateTime time) {
         if(!enabled)
             return;
 
@@ -85,7 +97,7 @@ public class CCLogger {
             return;
 
         StringBuilder msg = new StringBuilder(logFormat);
-        msg = new StringBuilder(org.capturecoop.ccutils.utils.StringUtils.formatDateTimeString(msg.toString(), LocalDateTime.now()));
+        msg = new StringBuilder(org.capturecoop.ccutils.utils.StringUtils.formatDateTimeString(msg.toString(), time));
 
         String levelString = level.toString();
 
@@ -192,6 +204,20 @@ public class CCLogger {
                 writeToFile(m);
             }
             preFileMessages.clear();
+        }
+    }
+
+    public static void setPaused(boolean paused) {
+        CCLogger.paused = paused;
+        if(!paused) {
+            for(LogMessage msg : pausedMessages) {
+                if(!msg.isStacktrace()) {
+                    logInternal(msg.getMessage(), msg.getLevel(), msg.getTime());
+                } else {
+                    logStacktraceInternal(msg.getMessage(), msg.getLevel());
+                }
+            }
+            pausedMessages.clear();
         }
     }
 
