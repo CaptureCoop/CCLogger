@@ -159,7 +159,6 @@ public class CCLogger {
         if(enabled) {
             if(console == null)
                 console = new DebugConsole();
-            console.setVisible(true);
             console.update();
         } else {
             console.setVisible(false);
