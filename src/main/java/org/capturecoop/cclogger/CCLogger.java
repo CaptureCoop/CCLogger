@@ -14,9 +14,9 @@ import java.util.ArrayList;
 public class CCLogger {
     private static File logFile;
     private static final int MAX_LEVEL_LENGTH = LogLevel.WARNING.toString().length();
-    private static boolean enabled = false;
+    private static boolean paused = false;
     private static final ArrayList<LogMessage> preEnabledMessages = new ArrayList<>();
-    private static String logFormat = "";
+    private static String logFormat = "[%hour%:%minute%:%second%:%ms%] [%level%]%levelspace% [%filename%.%method%:%line%]: %message%";
     private static String htmlLog = "";
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
 
@@ -29,7 +29,7 @@ public class CCLogger {
     private CCLogger() {}
 
     public static void log(String message, LogLevel level) {
-        if(!enabled) {
+        if(paused) {
             preEnabledMessages.add(new LogMessage(level, message, LocalDateTime.now()));
             return;
         }
@@ -65,7 +65,7 @@ public class CCLogger {
 
     //The reason for this is that this way we can take index 3 of stack trace at all times
     private static void logInternal(String message, LogLevel level, LocalDateTime time) {
-        if(!enabled)
+        if(paused)
             return;
 
         if(level == LogLevel.DEBUG && logLevel == LogLevel.DEBUG)
@@ -111,9 +111,9 @@ public class CCLogger {
 
         htmlLog += htmlLine;
 
-        DebugConsole console = SnipSniper.getDebugConsole();
-        if(console != null)
-            console.update();
+        //DebugConsole console = SnipSniper.getDebugConsole();
+        //if(console != null)
+        //    console.update();
 
         if(logFile != null) {
             msg.append("\n");
@@ -138,9 +138,9 @@ public class CCLogger {
         return color;
     }
 
-    public static void setEnabled(boolean enabled) {
-        CCLogger.enabled = enabled;
-        if(enabled) {
+    public static void setPaused(boolean paused) {
+        CCLogger.paused = paused;
+        if(!paused) {
             for(LogMessage msg : preEnabledMessages)
                 logInternal(msg.getMessage(), msg.getLevel(), msg.getTime());
             preEnabledMessages.clear();
