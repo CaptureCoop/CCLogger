@@ -20,8 +20,8 @@ public class CCLogger {
     private static final ArrayList<LogMessage> pausedMessages = new ArrayList<>(); //These need to be constructed once ready
     private static String logFormat = "[%hour%:%minute%:%second%:%ms%] [%level%]%levelspace% [%filename%.%method%:%line%]: %message%";
     private static String htmlLog = "";
-    private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
-    private static String gitCodeClassPath; //Example: org.snipsniper
+    private static String gitHubCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
+    private static String gitHubCodeClassPath; //Example: org.snipsniper -> If set only messages that contain this classpath get the @ link
     private static DebugConsole console;
     private static final String THIS_CLASSPATH = "org.capturecoop.cclogger.CCLogger";
 
@@ -139,8 +139,8 @@ public class CCLogger {
 
         String finalMsg = org.apache.commons.text.StringEscapeUtils.escapeHtml4(msg.toString()).replaceAll(" ", "&nbsp;");
         finalMsg = finalMsg.replaceAll("%newline%", "<br>");
-        if(gitCodePathURL != null && (gitCodeClassPath == null || gitCodeClassPath.isEmpty() || currentStackTrace.getClassName().contains(gitCodeClassPath))) {
-            String link = gitCodePathURL + currentStackTrace.getClassName().replaceAll("\\.", "/") + ".java#L" + currentStackTrace.getLineNumber();
+        if(gitHubCodePathURL != null && (gitHubCodeClassPath == null || gitHubCodeClassPath.isEmpty() || currentStackTrace.getClassName().contains(gitHubCodeClassPath))) {
+            String link = gitHubCodePathURL + currentStackTrace.getClassName().replaceAll("\\.", "/") + ".java#L" + currentStackTrace.getLineNumber();
             finalMsg = finalMsg.replace(":" + currentStackTrace.getLineNumber() + "]", ":" + currentStackTrace.getLineNumber() + " <a href='" + link + "'>@</a>]");
         }
         String htmlLine = "<p style='margin-top:0; white-space: nowrap;'><font color='" + getLevelColor(level) + "'>" + finalMsg + "</font></p>";
@@ -244,12 +244,12 @@ public class CCLogger {
         return logFile;
     }
 
-    public static void setGitCodePathURL(String url) {
-        gitCodePathURL = url;
+    public static void setGitHubCodePathURL(String url) {
+        gitHubCodePathURL = url;
     }
 
-    public static void setGitCodeClassPath(String classPath) {
-        gitCodeClassPath = classPath;
+    public static void setGitHubCodeClassPath(String classPath) {
+        gitHubCodeClassPath = classPath;
     }
 
     public static void setLogFormat(String logFormat) {
