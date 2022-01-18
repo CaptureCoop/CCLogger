@@ -26,9 +26,6 @@ public class DebugConsole extends JFrame{
         setSize((int)(size.getWidth()/2), (int)(size.getHeight()/2));
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        DefaultCaret caret = (DefaultCaret)content.getCaret();
-        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-
         try {
             icon = ImageIO.read(DebugConsole.class.getResource("/org/capturecoop/cclogger/resources/console.png"));
         } catch (IOException e) {
