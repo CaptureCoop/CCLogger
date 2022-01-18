@@ -22,6 +22,7 @@ public class CCLogger {
     private static String htmlLog = "";
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
     private static DebugConsole console;
+    private static final String THIS_CLASSPATH = "org.capturecoop.cclogger.CCLogger";
 
     // Debug    -> Log everything + debug messages
     // Info     -> Log everything
@@ -89,9 +90,16 @@ public class CCLogger {
     }
 
     private static StackTraceElement getStackTrace() {
+        //We loop through the stacktrace till we get to whoever called the logger. We skip the first element as its java.lang.Thread
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        final int STACKTRACE_START = 3;
-        return stackTrace[STACKTRACE_START];
+        int startIndex;
+        for(startIndex = 1; startIndex < stackTrace.length; startIndex++) {
+            if(stackTrace[startIndex].getClassName().startsWith(THIS_CLASSPATH))
+                startIndex++;
+            else
+                break;
+        }
+        return stackTrace[startIndex];
     }
 
     //The reason for this is that this way we can take index 3 of stack trace at all times
