@@ -18,7 +18,6 @@ public class CCLogger {
     private static final ArrayList<LogMessage> preEnabledMessages = new ArrayList<>();
     private static String logFormat = "";
     private static String htmlLog = "";
-    private static String logFolder;
     private static String gitCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
 
     // Debug    -> Log everything + debug messages
@@ -116,29 +115,14 @@ public class CCLogger {
         if(console != null)
             console.update();
 
-        if(logFolder != null) {
-            if (logFile == null) {
-                LocalDateTime now = LocalDateTime.now();
-                String filename = now.toString().replace(".", "_").replace(":", "_");
-                filename += ".log";
-
-                logFile = new File(logFolder + filename);
-                try {
-                    if (logFile.createNewFile())
-                        CCLogger.log("Created new logfile at: " + logFile.getAbsolutePath(), LogLevel.INFO);
-                } catch (IOException ioException) {
-                    CCLogger.log("Could not create logfile at \"%c\". Printing to console as well just in case!", LogLevel.ERROR, logFile.getAbsolutePath());
-                    CCLogger.logStacktrace(ioException, LogLevel.ERROR);
-                    ioException.printStackTrace();
-                }
-            }
-
+        if(logFile != null) {
             msg.append("\n");
-
             try {
                 Files.write(Paths.get(logFile.getAbsolutePath()), msg.toString().getBytes(), StandardOpenOption.APPEND);
             } catch (IOException ioException) {
-                CCLogger.log("Could not create logfile at \"%c\". Printing to console as well just in case!", LogLevel.ERROR, logFile.getAbsolutePath());
+                String path = logFile.getAbsolutePath();
+                logFile = null;
+                CCLogger.log("Could not write to logfile at \"%c\". Disabling logFile & Printing to console as well just in case!", LogLevel.ERROR, path);
                 CCLogger.logStacktrace(ioException, LogLevel.ERROR);
                 ioException.printStackTrace();
             }
@@ -165,6 +149,10 @@ public class CCLogger {
 
     public static String getHTMLLog() {
         return htmlLog;
+    }
+
+    public static void setLogFile(File logFile) {
+        CCLogger.logFile = logFile;
     }
 
     public static File getLogFile() {
