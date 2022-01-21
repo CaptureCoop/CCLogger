@@ -24,6 +24,29 @@ sourceControl {
 }
 ```
 
+## Setup in code
+
+Example settings:
+
+```
+CCLogger.setEnabled(true);
+CCLogger.setPaused(true);
+CCLogger.setLogFormat("[%hour%:%minute%:%second%:%ms%] [%level%]%levelspace% [%filename%.%method%:%line%]: %message%"));
+CCLogger.setLogFile(new File("file.log"));
+CCLogger.setGitHubCodePathURL("https://github.com/CaptureCoop/SnipSniper/tree/<githash>/src/main/java/");
+CCLogger.setGitHubCodeClassPath("net.snipsniper");
+CCLogger.setPaused(false);
+```
+
+TLDR:
+
+setEnabled is required for the logger to do anything. setPaused allows you to store logged messages till you unpause it, which is useful for setting up parameters.
+
+The GitHub code setters are for the DebugConsole to allow you clicking on classes to open them in your browser. The GitHubCodeClassPath is a whitelist to only add the @ link to said package.
+
+You can leave that away and the @ will be added to every class.
+
+## License
 
 MIT License
 
