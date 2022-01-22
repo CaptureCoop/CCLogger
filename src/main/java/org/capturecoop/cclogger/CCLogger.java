@@ -34,6 +34,10 @@ public class CCLogger {
 
     private CCLogger() {}
 
+    public static void log(String message) {
+        log(message, CCLogLevel.INFO);
+    }
+
     public static void log(String message, CCLogLevel level) {
         if(!enabled)
             return;
