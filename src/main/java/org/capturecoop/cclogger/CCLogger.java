@@ -16,44 +16,44 @@ public class CCLogger {
     private static boolean enabled = false;
     private static boolean paused = false;
     private static File logFile;
-    private static final int MAX_LEVEL_LENGTH = LogLevel.WARNING.toString().length();
+    private static final int MAX_LEVEL_LENGTH = CCLogLevel.WARNING.toString().length();
     private static final ArrayList<String> preFileMessages = new ArrayList<>(); //These are printed but not written right away
-    private static final ArrayList<LogMessage> pausedMessages = new ArrayList<>(); //These need to be constructed once ready
+    private static final ArrayList<CCLogMessage> pausedMessages = new ArrayList<>(); //These need to be constructed once ready
     private static String logFormat = "[%hour%:%minute%:%second%:%ms%] [%level%]%levelspace% [%filename%.%method%:%line%]: %message%";
     private static String htmlLog = "";
     private static String gitHubCodePathURL = null; //Example: https://github.com/CaptureCoop/SnipSniper/tree/<HASH HERE>/src/main/java/"
     private static String gitHubCodeClassPath; //Example: org.snipsniper -> If set only messages that contain this classpath get the @ link
-    private static DebugConsole console;
+    private static CCDebugConsole console;
     private static final String THIS_CLASSPATH = "org.capturecoop.cclogger.CCLogger";
 
     // Debug    -> Log everything + debug messages
     // Info     -> Log everything
     // Warning  -> Log warnings and errors
     // Error    -> Log errors
-    private static LogLevel logLevel = LogLevel.INFO;
+    private static CCLogLevel logLevel = CCLogLevel.INFO;
 
     private CCLogger() {}
 
-    public static void log(String message, LogLevel level) {
+    public static void log(String message, CCLogLevel level) {
         if(!enabled)
             return;
 
         if(paused) {
-            pausedMessages.add(new LogMessage(level, message, LocalDateTime.now(), getStackTrace(), false));
+            pausedMessages.add(new CCLogMessage(level, message, LocalDateTime.now(), getStackTrace(), false));
             return;
         }
 
         logInternal(message, level, LocalDateTime.now(), getStackTrace());
     }
 
-    public static void log(String message, LogLevel level, Object... args) {
+    public static void log(String message, CCLogLevel level, Object... args) {
         if(!enabled)
             return;
 
         log(org.capturecoop.ccutils.utils.CCStringUtils.format(message, args), level);
     }
 
-    public static void logStacktrace(LogLevel level) {
+    public static void logStacktrace(CCLogLevel level) {
         if(!enabled)
             return;
 
@@ -69,19 +69,19 @@ public class CCLogger {
         logStacktraceInternal(stackTraceString.toString(), level);
     }
 
-    public static void logStacktrace(Throwable exception, LogLevel level) {
+    public static void logStacktrace(Throwable exception, CCLogLevel level) {
         if(!enabled)
             return;
 
         logStacktraceInternal(ExceptionUtils.getStackTrace(exception), level);
     }
 
-    private static void logStacktraceInternal(String message, LogLevel level) {
+    private static void logStacktraceInternal(String message, CCLogLevel level) {
         if(!enabled)
             return;
 
         if(paused) {
-            pausedMessages.add(new LogMessage(level, message, LocalDateTime.now(), null, true));
+            pausedMessages.add(new CCLogMessage(level, message, LocalDateTime.now(), null, true));
             return;
         }
 
@@ -105,11 +105,11 @@ public class CCLogger {
     }
 
     //The reason for this is that this way we can take index 3 of stack trace at all times
-    private static void logInternal(String message, LogLevel level, LocalDateTime time, StackTraceElement currentStackTrace) {
+    private static void logInternal(String message, CCLogLevel level, LocalDateTime time, StackTraceElement currentStackTrace) {
         if(!enabled)
             return;
 
-        if(level == LogLevel.DEBUG && logLevel == LogLevel.DEBUG)
+        if(level == CCLogLevel.DEBUG && logLevel == CCLogLevel.DEBUG)
             return;
 
         StringBuilder msg = new StringBuilder(logFormat);
@@ -162,19 +162,19 @@ public class CCLogger {
             } catch (IOException ioException) {
                 String path = logFile.getAbsolutePath();
                 logFile = null;
-                CCLogger.log("Could not write to logfile at \"%c\". Disabling logFile & Printing to console as well just in case!", LogLevel.ERROR, path);
-                CCLogger.logStacktrace(ioException, LogLevel.ERROR);
+                CCLogger.log("Could not write to logfile at \"%c\". Disabling logFile & Printing to console as well just in case!", CCLogLevel.ERROR, path);
+                CCLogger.logStacktrace(ioException, CCLogLevel.ERROR);
             }
         } else {
             preFileMessages.add(message);
         }
     }
 
-    public static String getLevelColor(LogLevel level) {
+    public static String getLevelColor(CCLogLevel level) {
         String color = "white";
-        if(level == LogLevel.WARNING)
+        if(level == CCLogLevel.WARNING)
             color = "yellow";
-        else if(level == LogLevel.ERROR)
+        else if(level == CCLogLevel.ERROR)
             color = "red";
         return color;
     }
@@ -188,11 +188,11 @@ public class CCLogger {
         if(!logFile.exists()) {
             try {
                 if (logFile.createNewFile()) {
-                    CCLogger.log("Set log file does not exist. Creating: %c", LogLevel.INFO, logFile.getAbsolutePath());
+                    CCLogger.log("Set log file does not exist. Creating: %c", CCLogLevel.INFO, logFile.getAbsolutePath());
                 }
             } catch (IOException ioException) {
-                CCLogger.log("Set log file does not exist and could not be created. File: %c", LogLevel.ERROR, logFile.getAbsolutePath());
-                CCLogger.logStacktrace(ioException, LogLevel.ERROR);
+                CCLogger.log("Set log file does not exist and could not be created. File: %c", CCLogLevel.ERROR, logFile.getAbsolutePath());
+                CCLogger.logStacktrace(ioException, CCLogLevel.ERROR);
             }
         }
         refreshPreFileMessages();
@@ -201,7 +201,7 @@ public class CCLogger {
     public static void enableDebugConsole(boolean enabled) {
         if(enabled) {
             if(console == null)
-                console = new DebugConsole();
+                console = new CCDebugConsole();
             console.update();
         } else {
             console.setVisible(false);
@@ -222,7 +222,7 @@ public class CCLogger {
     public static void setPaused(boolean paused) {
         CCLogger.paused = paused;
         if(!paused) {
-            for(LogMessage msg : pausedMessages) {
+            for(CCLogMessage msg : pausedMessages) {
                 if(!msg.isStacktrace()) {
                     logInternal(msg.getMessage(), msg.getLevel(), msg.getTime(), msg.getStackTraceElement());
                 } else {
@@ -257,7 +257,7 @@ public class CCLogger {
         CCLogger.logFormat = logFormat;
     }
 
-    public static void setLogLevel(LogLevel logLevel) {
+    public static void setLogLevel(CCLogLevel logLevel) {
         CCLogger.logLevel = logLevel;
     }
 

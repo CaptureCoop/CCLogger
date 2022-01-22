@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class DebugConsole extends JFrame{
+public class CCDebugConsole extends JFrame{
     private final JTextPane content = new JTextPane();
     private final ArrayList<WindowListener> listeners = new ArrayList<>();
     private int fontSize = 20;
@@ -19,14 +19,14 @@ public class DebugConsole extends JFrame{
     private final boolean[] keys = new boolean[4096];
     private BufferedImage icon;
 
-    public DebugConsole () {
+    public CCDebugConsole() {
         setTitle("Debug Console");
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         setSize((int)(size.getWidth()/2), (int)(size.getHeight()/2));
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         try {
-            icon = ImageIO.read(DebugConsole.class.getResource("/org/capturecoop/cclogger/resources/console.png"));
+            icon = ImageIO.read(CCDebugConsole.class.getResource("/org/capturecoop/cclogger/resources/console.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }

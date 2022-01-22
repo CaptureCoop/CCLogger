@@ -2,14 +2,14 @@ package org.capturecoop.cclogger;
 
 import java.time.LocalDateTime;
 
-public class LogMessage {
-    private final LogLevel level;
+public class CCLogMessage {
+    private final CCLogLevel level;
     private final String message;
     private final LocalDateTime time;
     private final StackTraceElement stackTraceElement;
     private final boolean isStacktrace;
 
-    public LogMessage(LogLevel level, String message, LocalDateTime time, StackTraceElement stackTraceElement, boolean isException) {
+    public CCLogMessage(CCLogLevel level, String message, LocalDateTime time, StackTraceElement stackTraceElement, boolean isException) {
         this.level = level;
         this.message = message;
         this.time = time;
@@ -17,7 +17,7 @@ public class LogMessage {
         this.isStacktrace = isException;
     }
 
-    public LogLevel getLevel() {
+    public CCLogLevel getLevel() {
         return level;
     }
 
