@@ -2,6 +2,7 @@ package org.capturecoop.cclogger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.capturecoop.ccutils.utils.CCStringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class CCLogger {
         if(!enabled)
             return;
 
-        log(org.capturecoop.ccutils.utils.StringUtils.format(message, args), level);
+        log(org.capturecoop.ccutils.utils.CCStringUtils.format(message, args), level);
     }
 
     public static void logStacktrace(LogLevel level) {
@@ -112,7 +113,7 @@ public class CCLogger {
             return;
 
         StringBuilder msg = new StringBuilder(logFormat);
-        msg = new StringBuilder(org.capturecoop.ccutils.utils.StringUtils.formatDateTimeString(msg.toString(), time));
+        msg = new StringBuilder(CCStringUtils.formatDateTimeString(msg.toString(), time));
 
         String levelString = level.toString();
 

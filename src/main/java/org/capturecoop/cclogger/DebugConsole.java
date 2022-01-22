@@ -1,6 +1,6 @@
 package org.capturecoop.cclogger;
 
-import org.capturecoop.ccutils.utils.LinkUtils;
+import org.capturecoop.ccutils.utils.CCLinkUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -83,7 +83,7 @@ public class DebugConsole extends JFrame{
 
         content.addHyperlinkListener(hle -> {
             if (HyperlinkEvent.EventType.ACTIVATED.equals(hle.getEventType())) {
-                LinkUtils.openLink(hle.getURL().toString());
+                CCLinkUtils.openLink(hle.getURL().toString());
             }
         });
 
