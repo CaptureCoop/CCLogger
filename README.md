@@ -46,6 +46,12 @@ The GitHub code setters are for the DebugConsole to allow you clicking on classe
 
 You can leave that away and the @ will be added to every class.
 
+## Dependencies
+
+* [Apache Commons Text](https://mvnrepository.com/artifact/org.apache.commons/commons-text)
+* [Apache Commons Lang](https://mvnrepository.com/artifact/org.apache.commons/commons-lang)
+* [CCUtils](https://github.com/capturecoop/ccutils)
+
 ## License
 
 MIT License
