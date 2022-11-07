@@ -1,7 +1,0 @@
-rootProject.name = 'CCLogger'
-
-sourceControl {
-    gitRepository("https://github.com/CaptureCoop/CCUtils.git") {
-        producesModule("org.capturecoop:CCUtils")
-    }
-}
