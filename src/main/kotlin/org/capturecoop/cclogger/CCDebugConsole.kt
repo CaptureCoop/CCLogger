@@ -31,7 +31,9 @@ class CCDebugConsole: JFrame() {
         content.isEditable = false
         content.background = Color.BLACK
         content.font = Font("Consolas", Font.PLAIN, fontSize)
-        content.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true) //This fixes an issue with the fonts being wonky and unable to change
+        //https://github.com/JFormDesigner/FlatLaf/issues/165
+        //This fixes an issue with the fonts being wonky and unable to change
+        content.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
 
         JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER).also { scrollPane ->
             scrollPane.border = BorderFactory.createEmptyBorder()
