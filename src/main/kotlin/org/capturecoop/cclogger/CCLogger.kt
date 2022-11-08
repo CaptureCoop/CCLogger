@@ -37,15 +37,17 @@ class CCLogger {
         private var console: CCDebugConsole? = null
         private const val THIS_CLASSPATH = "org.capturecoop.cclogger.CCLogger"
 
-        var logLevel = CCLogLevel.INFO
+        var filter = CCLogFilter.INFO
 
         //The reason for this is that this way we can take index 3 of stack trace at all times
         private fun logInternal(message: String, level: CCLogLevel, time: LocalDateTime, currentStackTrace: StackTraceElement) {
-            if(!enabled)
-                return
-
-            if(level == CCLogLevel.DEBUG && logLevel == CCLogLevel.DEBUG)
-                return
+            if(!enabled || filter == CCLogFilter.NONE) return
+            when(filter) {
+                CCLogFilter.ERRORS -> if(level != CCLogLevel.ERROR) return
+                CCLogFilter.WARNINGS -> if(level != CCLogLevel.ERROR && level != CCLogLevel.WARNING) return
+                CCLogFilter.INFO -> if(level != CCLogLevel.ERROR && level != CCLogLevel.WARNING && level != CCLogLevel.INFO) return
+                else -> {}
+            }
 
             var msg = CCStringUtils.formatDateTimeString(logFormat, time)
 
