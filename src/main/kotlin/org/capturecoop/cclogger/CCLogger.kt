@@ -4,14 +4,17 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.commons.text.StringEscapeUtils
 import org.capturecoop.ccutils.utils.CCStringUtils
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.time.LocalDateTime
+import javax.imageio.ImageIO
 
 class CCLogger {
     companion object {
+        val icon = ImageIO.read(CCDebugConsole::class.java.getResource("/org/capturecoop/cclogger/resources/console.png")) ?: throw FileNotFoundException("console.png not found!")
         var enabled = false
         var paused = false
             set(value) {

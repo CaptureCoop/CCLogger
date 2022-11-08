@@ -6,8 +6,6 @@ import java.awt.Font
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.awt.event.*
-import java.awt.image.BufferedImage
-import javax.imageio.ImageIO
 import javax.swing.*
 import javax.swing.event.HyperlinkEvent
 
@@ -17,7 +15,6 @@ class CCDebugConsole: JFrame() {
     private var fontSize = 20
     private val scrollSpeed = 20
     private val keys = Array(4096) { false }
-    private val icon: BufferedImage
 
     init {
         title = "Debug Console"
@@ -25,8 +22,7 @@ class CCDebugConsole: JFrame() {
         Toolkit.getDefaultToolkit().screenSize.also {
             setSize(it.width / 2, it.height / 2)
         }
-        icon = ImageIO.read(CCDebugConsole::class.java.getResource("/org/capturecoop/cclogger/resources/console.png"))
-        iconImage = icon
+        iconImage = CCLogger.icon
         content.isOpaque = true
         content.contentType = "text/html"
         content.isEditable = false
