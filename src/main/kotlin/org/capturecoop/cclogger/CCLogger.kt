@@ -121,9 +121,8 @@ class CCLogger {
             StringBuilder().also { sb ->
                 for(i in STACKTRACE_START until stackTrace.size) {
                     val trace = stackTrace[i].toString()
-                    //TODO: This should not be hardcoded
-                    //if(trace.contains("net.snipsniper"))
-                        sb.append(trace).append("\n")
+                    //TODO: Is this ok? Should we limit?
+                    sb.append(trace).append("\n")
                 }
                 logStacktraceInternal(sb.toString(), level)
             }
