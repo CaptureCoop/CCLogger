@@ -43,9 +43,9 @@ class CCLogger {
         private fun logInternal(message: String, level: CCLogLevel, time: LocalDateTime, currentStackTrace: StackTraceElement) {
             if(!enabled || filter == CCLogFilter.NONE) return
             when(filter) {
-                CCLogFilter.ERRORS -> if(level != CCLogLevel.ERROR) return
-                CCLogFilter.WARNINGS -> if(level != CCLogLevel.ERROR && level != CCLogLevel.WARNING) return
-                CCLogFilter.INFO -> if(level != CCLogLevel.ERROR && level != CCLogLevel.WARNING && level != CCLogLevel.INFO) return
+                CCLogFilter.ERRORS -> if(level.isNot(CCLogLevel.ERROR)) return
+                CCLogFilter.WARNINGS -> if(level.isNot(CCLogLevel.ERROR, CCLogLevel.WARNING)) return
+                CCLogFilter.INFO -> if(level.isNot(CCLogLevel.ERROR, CCLogLevel.WARNING, CCLogLevel.INFO)) return
                 else -> {}
             }
 
