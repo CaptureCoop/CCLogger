@@ -89,20 +89,20 @@ class CCLogger {
             writeToFile(msg.toString())
         }
 
-        fun info(message: String) = log(message, CCLogLevel.INFO)
-        fun warn(message: String) = log(message, CCLogLevel.WARNING)
-        fun error(message: String) = log(message, CCLogLevel.ERROR)
-        fun debug(message: String) = log(message, CCLogLevel.DEBUG)
+        fun info(message: Any?) = log(message, CCLogLevel.INFO)
+        fun warn(message: Any?) = log(message, CCLogLevel.WARNING)
+        fun error(message: Any?) = log(message, CCLogLevel.ERROR)
+        fun debug(message: Any?) = log(message, CCLogLevel.DEBUG)
 
-        fun log(message: String, level: CCLogLevel) {
+        fun log(message: Any?, level: CCLogLevel) {
             if(!enabled) return
 
             if(paused) {
-                pausedMessages.add(CCLogMessage(level, message, LocalDateTime.now(), getStackTrace(), false))
+                pausedMessages.add(CCLogMessage(level, message.toString(), LocalDateTime.now(), getStackTrace(), false))
                 return
             }
 
-            logInternal(message, level, LocalDateTime.now(), getStackTrace())
+            logInternal(message.toString(), level, LocalDateTime.now(), getStackTrace())
         }
 
         private fun writeToFile(message: String) {
@@ -130,7 +130,7 @@ class CCLogger {
                 for(i in STACKTRACE_START until stackTrace.size) {
                     val trace = stackTrace[i].toString()
                     //TODO: Is this ok? Should we limit?
-                    sb.append(trace).append("\n")
+                    sb.append("$trace\n")
                 }
                 logStacktraceInternal(sb.toString(), level)
             }
