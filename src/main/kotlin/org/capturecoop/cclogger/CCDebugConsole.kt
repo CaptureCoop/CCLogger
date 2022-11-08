@@ -4,6 +4,7 @@ import org.capturecoop.ccutils.utils.CCLinkUtils
 import java.awt.Color
 import java.awt.Font
 import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.awt.event.*
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
@@ -53,6 +54,18 @@ class CCDebugConsole: JFrame() {
                 content.font = Font(content.font.name, Font.PLAIN, fontSize)
             }
         }
+
+        content.addMouseListener(object: MouseAdapter() {
+            override fun mouseClicked(mouseEvent: MouseEvent) {
+                super.mouseClicked(mouseEvent)
+                //if right click, copy text
+                if(mouseEvent.button != 3) return
+                content.selectedText?.also {
+                    Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(it), null)
+                    content.select(0, 0)
+                }
+            }
+        })
 
         content.addKeyListener(object: KeyAdapter() {
             override fun keyPressed(keyEvent: KeyEvent) {
