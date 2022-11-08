@@ -7,10 +7,7 @@ import java.awt.Toolkit
 import java.awt.event.*
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
-import javax.swing.BorderFactory
-import javax.swing.JFrame
-import javax.swing.JScrollPane
-import javax.swing.JTextPane
+import javax.swing.*
 import javax.swing.event.HyperlinkEvent
 
 class CCDebugConsole: JFrame() {
@@ -34,6 +31,7 @@ class CCDebugConsole: JFrame() {
         content.isEditable = false
         content.background = Color.BLACK
         content.font = Font("Consolas", Font.PLAIN, fontSize)
+        content.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true) //This fixes an issue with the fonts being wonky and unable to change
 
         JScrollPane(content, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER).also { scrollPane ->
             scrollPane.border = BorderFactory.createEmptyBorder()
