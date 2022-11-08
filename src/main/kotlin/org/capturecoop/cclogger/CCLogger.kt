@@ -68,7 +68,7 @@ class CCLogger {
 
             println(level.ansiColor + msg.toString().replace("%newline%", "\n") + level.ansiReset())
 
-            var finalMsg = StringEscapeUtils.escapeHtml4(msg.toString()).replace(" ", "&nbsp")
+            var finalMsg = StringEscapeUtils.escapeHtml4(msg.toString()).replace(" ", "&nbsp;")
             finalMsg = finalMsg.replace("%newline%", "<br>")
             if(gitHubCodePathURL != null && (gitHubCodeClassPath == null || gitHubCodeClassPath.isNullOrEmpty() || currentStackTrace.className.contains(gitHubCodeClassPath!!))) {
                 val link = gitHubCodePathURL + currentStackTrace.className.replace("\\.", "/") + ".java#L" + currentStackTrace.lineNumber
