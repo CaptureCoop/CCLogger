@@ -5,7 +5,6 @@ import org.apache.commons.text.StringEscapeUtils
 import org.capturecoop.ccutils.utils.CCStringUtils
 import java.io.File
 import java.io.IOException
-import java.lang.Exception
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
@@ -63,7 +62,7 @@ class CCLogger {
             msg = msg.toString().replace("%level%", levelString)
             msg = msg.toString().replace("%message%", message)
 
-            println(msg.toString().replace("%newline%", "\n"))
+            println(level.ansiColor + msg.toString().replace("%newline%", "\n") + level.ansiReset())
 
             var finalMsg = StringEscapeUtils.escapeHtml4(msg.toString()).replace(" ", "&nbsp")
             finalMsg = finalMsg.replace("%newline%", "<br>")
@@ -71,7 +70,7 @@ class CCLogger {
                 val link = gitHubCodePathURL + currentStackTrace.className.replace("\\.", "/") + ".java#L" + currentStackTrace.lineNumber
                 finalMsg = finalMsg.replace(":" + currentStackTrace.lineNumber + "]", ":" + currentStackTrace.lineNumber + " <a href='" + link + "'>@</a>]")
             }
-            val htmlLine = "<p style='margin-top:0 white-space: nowrap'><font color='" + getLevelColor(level) + "'>" + finalMsg + "</font></p>"
+            val htmlLine = "<p style='margin-top:0 white-space: nowrap'><font color='" + level.htmlColor + "'>" + finalMsg + "</font></p>"
 
             htmlLog += htmlLine
 
@@ -84,7 +83,7 @@ class CCLogger {
         fun info(message: String) = log(message, CCLogLevel.INFO)
         fun warn(message: String) = log(message, CCLogLevel.WARNING)
         fun error(message: String) = log(message, CCLogLevel.ERROR)
-        fun debug(message: String) = log(message, CCLogLevel.ERROR)
+        fun debug(message: String) = log(message, CCLogLevel.DEBUG)
 
         fun log(message: String, level: CCLogLevel) {
             if(!enabled) return
@@ -133,15 +132,6 @@ class CCLogger {
             logStacktraceInternal(ExceptionUtils.getStackTrace(exception), level)
         }
 
-        private fun getLevelColor(level: CCLogLevel): String {
-            var color = "white"
-            if(level == CCLogLevel.WARNING)
-                color = "yellow"
-            else if(level == CCLogLevel.ERROR)
-                color = "red"
-            return color
-        }
-
         private fun refreshPreFileMessages() {
             preFileMessages.forEach {
                 writeToFile(it)
@@ -173,7 +163,7 @@ class CCLogger {
 
             println(message)
             writeToFile(message)
-            htmlLog += "<p style='margin-top:0 white-space: nowrap'><font color='" + getLevelColor(level) + "'>" + StringEscapeUtils.escapeHtml4(message).replace("\n", "<br>") + "</font></p>"
+            htmlLog += "<p style='margin-top:0 white-space: nowrap'><font color='" + level.htmlColor + "'>" + StringEscapeUtils.escapeHtml4(message).replace("\n", "<br>") + "</font></p>"
             htmlLog += "<br>"
         }
 
