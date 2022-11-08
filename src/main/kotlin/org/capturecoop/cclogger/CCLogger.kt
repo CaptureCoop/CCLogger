@@ -13,7 +13,11 @@ import java.time.LocalDateTime
 class CCLogger {
     companion object {
         var enabled = false
-        private var paused = false
+        var paused = false
+            set(value) {
+                field = value
+                updatePaused()
+            }
         var logFile: File? = null
             set(value) {
                 value?.createNewFile()
@@ -167,8 +171,7 @@ class CCLogger {
             htmlLog += "<br>"
         }
 
-        fun setPaused(paused: Boolean) {
-            this.paused = paused
+        private fun updatePaused() {
             if(!paused) {
                 pausedMessages.forEach { msg ->
                     if(!msg.isException) {
@@ -179,6 +182,7 @@ class CCLogger {
                 }
                 pausedMessages.clear()
             }
+
         }
 
         fun enableDebugConsole(enabled: Boolean) {
