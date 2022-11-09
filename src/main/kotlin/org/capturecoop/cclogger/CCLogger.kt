@@ -52,27 +52,31 @@ class CCLogger {
 
             var msg = CCStringUtils.formatDateTimeString(logFormat, time)
 
-            var levelString = level.toString()
-
-            if(levelString.length <= MAX_LEVEL_LENGTH) {
-                msg = msg.toString().replace("%levelspace%", " ".repeat(MAX_LEVEL_LENGTH - levelString.length))
-            } else {
-                levelString = levelString.substring(0, MAX_LEVEL_LENGTH)
-                msg = msg.toString().replace("%levelspace%", "")
+            //Handle %level% and %levelspace%
+            level.toString().also {
+                var levelString = it
+                if(levelString.length <= MAX_LEVEL_LENGTH) {
+                    msg = msg.replace("%levelspace%", " ".repeat(MAX_LEVEL_LENGTH - levelString.length))
+                } else {
+                    levelString = levelString.substring(0, MAX_LEVEL_LENGTH)
+                    msg = msg.replace("%levelspace%", "")
+                }
+                msg = msg.replace("%level%", levelString)
             }
 
-            var classFilename = currentStackTrace.fileName ?: "No file name"
-            classFilename = classFilename.replace(".java" ,"")
+            //Handle %filename% and %fileext%
+            File(currentStackTrace.fileName ?: "null").also {
+                msg = msg.replace("%filename%", it.nameWithoutExtension)
+                msg = msg.replace("%fileext%", it.extension)
+            }
 
-            msg = msg.toString().replace("%filename%", classFilename)
-            msg = msg.toString().replace("%method%", currentStackTrace.methodName)
-            msg = msg.toString().replace("%line%", currentStackTrace.lineNumber.toString())
+            //Handle %method%, %line%, %message% and %newline%
+            msg = msg.replace("%method%", currentStackTrace.methodName)
+            msg = msg.replace("%line%", currentStackTrace.lineNumber.toString())
+            msg = msg.replace("%message%", message)
+            msg = msg.replace("%newline%", "\n")
 
-            msg = msg.toString().replace("%levelspace%", "")
-            msg = msg.toString().replace("%level%", levelString)
-            msg = msg.toString().replace("%message%", message)
-
-            println(level.getAnsiColor() + msg.toString().replace("%newline%", "\n") + level.getAnsiReset())
+            println(level.getAnsiColor() + msg + level.getAnsiReset())
 
             var finalMsg = StringEscapeUtils.escapeHtml4(msg.toString()).replace(" ", "&nbsp;")
             finalMsg = finalMsg.replace("%newline%", "<br>")
