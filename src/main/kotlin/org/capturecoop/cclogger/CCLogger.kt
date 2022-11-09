@@ -72,7 +72,7 @@ class CCLogger {
             msg = msg.toString().replace("%level%", levelString)
             msg = msg.toString().replace("%message%", message)
 
-            println(level.getAnsiColor() + msg.toString().replace("%newline%", "\n") + level.ansiReset())
+            println(level.getAnsiColor() + msg.toString().replace("%newline%", "\n") + level.getAnsiReset())
 
             var finalMsg = StringEscapeUtils.escapeHtml4(msg.toString()).replace(" ", "&nbsp;")
             finalMsg = finalMsg.replace("%newline%", "<br>")
