@@ -144,6 +144,11 @@ class CCLogger {
             logStacktraceInternal(ExceptionUtils.getStackTrace(exception), level)
         }
 
+        fun logStacktrace(throwable: Throwable, level: CCLogLevel) {
+            if(!enabled) return
+            logStacktraceInternal(ExceptionUtils.getStackTrace(throwable), level)
+        }
+
         private fun refreshPreFileMessages() {
             preFileMessages.forEach {
                 writeToFile(it)
