@@ -1,5 +1,6 @@
 package org.capturecoop.cclogger
 
+import java.awt.Color
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.commons.text.StringEscapeUtils
 import org.capturecoop.ccutils.utils.CCStringUtils
@@ -71,7 +72,7 @@ class CCLogger {
             msg = msg.toString().replace("%level%", levelString)
             msg = msg.toString().replace("%message%", message)
 
-            println(level.ansiColor + msg.toString().replace("%newline%", "\n") + level.ansiReset())
+            println(level.getAnsiColor() + msg.toString().replace("%newline%", "\n") + level.ansiReset())
 
             var finalMsg = StringEscapeUtils.escapeHtml4(msg.toString()).replace(" ", "&nbsp;")
             finalMsg = finalMsg.replace("%newline%", "<br>")
@@ -79,7 +80,7 @@ class CCLogger {
                 val link = gitHubCodePathURL + currentStackTrace.className.replace("\\.", "/") + ".java#L" + currentStackTrace.lineNumber
                 finalMsg = finalMsg.replace(":" + currentStackTrace.lineNumber + "]", ":" + currentStackTrace.lineNumber + " <a href='" + link + "'>@</a>]")
             }
-            val htmlLine = "<p style='margin-top:0 white-space: nowrap'><font color='" + level.htmlColor + "'>" + finalMsg + "</font></p>"
+            val htmlLine = "<p style='margin-top:0 white-space: nowrap'><font color='${level.getHTMLColor()}'>${finalMsg}</font></p>"
 
             htmlLog += htmlLine
 
@@ -172,7 +173,8 @@ class CCLogger {
 
             println(message)
             writeToFile(message)
-            htmlLog += "<p style='margin-top:0 white-space: nowrap'><font color='" + level.htmlColor + "'>" + StringEscapeUtils.escapeHtml4(message).replace("\n", "<br>") + "</font></p>"
+            val htmlEscaped = StringEscapeUtils.escapeHtml4(message).replace("\n", "<br>")
+            htmlLog += "<p style='margin-top:0 white-space: nowrap'><font color='${level.getHTMLColor()}'>${htmlEscaped}</font></p>"
             htmlLog += "<br>"
         }
 
