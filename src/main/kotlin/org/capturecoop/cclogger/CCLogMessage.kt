@@ -20,7 +20,7 @@ enum class CCLogFilter {
 }
 
 enum class CCLogLevel(private val color: Color) {
-    DEBUG(Color.PINK),
+    DEBUG(Color.MAGENTA),
     INFO(Color.WHITE),
     WARNING(Color.YELLOW),
     ERROR(Color.RED);
