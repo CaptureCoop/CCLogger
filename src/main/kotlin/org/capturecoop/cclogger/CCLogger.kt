@@ -40,6 +40,20 @@ class CCLogger {
 
         var filter = CCLogFilter.INFO
 
+        fun info(message: Any?) = log(message, CCLogLevel.INFO)
+        fun warn(message: Any?) = log(message, CCLogLevel.WARNING)
+        fun error(message: Any?) = log(message, CCLogLevel.ERROR)
+        fun debug(message: Any?) = log(message, CCLogLevel.DEBUG)
+
+        fun log(message: Any?, level: CCLogLevel) {
+            if(!enabled) return
+            if(paused) {
+                pausedMessages.add(CCLogMessage(level, message.toString(), LocalDateTime.now(), getStackTrace(), false))
+                return
+            }
+            logInternal(message.toString(), level, LocalDateTime.now(), getStackTrace())
+        }
+
         //The reason for this is that this way we can take index 3 of stack trace at all times
         private fun logInternal(message: String, level: CCLogLevel, time: LocalDateTime, currentStackTrace: StackTraceElement) {
             if(!enabled || filter == CCLogFilter.NONE) return
@@ -92,22 +106,6 @@ class CCLogger {
 
             msg += "\n"
             writeToFile(msg.toString())
-        }
-
-        fun info(message: Any?) = log(message, CCLogLevel.INFO)
-        fun warn(message: Any?) = log(message, CCLogLevel.WARNING)
-        fun error(message: Any?) = log(message, CCLogLevel.ERROR)
-        fun debug(message: Any?) = log(message, CCLogLevel.DEBUG)
-
-        fun log(message: Any?, level: CCLogLevel) {
-            if(!enabled) return
-
-            if(paused) {
-                pausedMessages.add(CCLogMessage(level, message.toString(), LocalDateTime.now(), getStackTrace(), false))
-                return
-            }
-
-            logInternal(message.toString(), level, LocalDateTime.now(), getStackTrace())
         }
 
         private fun writeToFile(message: String) {
