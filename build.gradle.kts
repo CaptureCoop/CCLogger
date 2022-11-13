@@ -5,19 +5,22 @@ plugins {
 }
 
 group = "org.capturecoop"
-version = "1.6.2"
+version = "1.6.3"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.capturecoop:CCUtils:1.9.4") //CaptureCoop Common Utils
+}
+
+//Shadow the dependencies into the jar
+tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from(configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) })
 }
 
 tasks.withType<KotlinCompile> {
