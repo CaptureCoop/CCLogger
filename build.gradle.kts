@@ -4,8 +4,8 @@ plugins {
     kotlin("jvm") version "1.7.10"
 }
 
-group "org.capturecoop"
-version "1.6.2"
+group = "org.capturecoop"
+version = "1.6.2"
 
 repositories {
     mavenCentral()
