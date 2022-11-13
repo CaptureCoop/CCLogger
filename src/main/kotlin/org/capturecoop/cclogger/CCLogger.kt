@@ -1,6 +1,5 @@
 package org.capturecoop.cclogger
 
-import java.awt.Color
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.commons.text.StringEscapeUtils
 import org.capturecoop.ccutils.utils.CCStringUtils
@@ -16,6 +15,7 @@ import javax.imageio.ImageIO
 class CCLogger {
     companion object {
         val icon = ImageIO.read(CCDebugConsole::class.java.getResource("/org/capturecoop/cclogger/resources/console.png")) ?: throw FileNotFoundException("console.png not found!")
+        val tabSpaces = 4
         var enabled = false
         var paused = false
             set(value) {
@@ -108,6 +108,45 @@ class CCLogger {
             writeToFile(msg.toString())
         }
 
+        fun logStacktrace(throwable: Exception, level: CCLogLevel) = logStacktrace(message = null, throwable = throwable, level = level)
+        fun logStacktrace(throwable: Throwable, level: CCLogLevel) = logStacktrace(message = null, throwable = throwable, level = level)
+        fun logStacktrace(message: String? = null, exception: Exception, level: CCLogLevel) = logStacktrace(message, throwable = exception, level)
+        fun logStacktrace(message: String? = null, throwable: Throwable, level: CCLogLevel) = logStacktraceInternal(message ?: throwable.message ?: "No message", ExceptionUtils.getStackTrace(throwable), level)
+
+        private fun logStacktraceInternal(message: String?, stackTraceString: String, level: CCLogLevel) {
+            if(!enabled) return
+
+            if(message != null) log(message, level)
+            if(paused) {
+                pausedMessages.add(CCLogMessage(level, stackTraceString, LocalDateTime.now(), null, true))
+                return
+            }
+
+            println(level.getAnsiColor() + stackTraceString + level.getAnsiReset())
+            writeToFile(stackTraceString)
+            val htmlEscaped = StringEscapeUtils.escapeHtml4(stackTraceString).replace("\n", "<br>").replace("\t", "&nbsp;".repeat(tabSpaces))
+            htmlLog += "<p style='margin-top:0 white-space: nowrap'><font color='${level.getHTMLColor()}'>${htmlEscaped}</font></p>"
+            htmlLog += "<br>"
+        }
+
+        private fun updatePaused() {
+            if(!paused) {
+                pausedMessages.forEach { msg ->
+                    if(!msg.isException) {
+                        logInternal(msg.message, msg.level, msg.time, msg.stackTraceElement ?: throw Exception("Oops! CCLogger 169 issue, stackTraceElement is null!!"))
+                    } else {
+                        logStacktraceInternal(message = null, stackTraceString = msg.message, level = msg.level)
+                    }
+                }
+                pausedMessages.clear()
+            }
+        }
+
+        private fun refreshPreFileMessages() {
+            preFileMessages.forEach { writeToFile(it) }
+            preFileMessages.clear()
+        }
+
         private fun writeToFile(message: String) {
             if(logFile != null) {
                 try {
@@ -123,39 +162,6 @@ class CCLogger {
             }
         }
 
-        fun logStacktrace(message: String, level: CCLogLevel) {
-            if(!enabled) return
-
-            val stackTrace = Thread.currentThread().stackTrace
-            val STACKTRACE_START = 2
-
-            StringBuilder().also { sb ->
-                for(i in STACKTRACE_START until stackTrace.size) {
-                    val trace = stackTrace[i].toString()
-                    //TODO: Is this ok? Should we limit?
-                    sb.append("$trace\n")
-                }
-                logStacktraceInternal(sb.toString(), level)
-            }
-        }
-
-        fun logStacktrace(exception: Exception, level: CCLogLevel) {
-            if(!enabled) return
-            logStacktraceInternal(ExceptionUtils.getStackTrace(exception), level)
-        }
-
-        fun logStacktrace(throwable: Throwable, level: CCLogLevel) {
-            if(!enabled) return
-            logStacktraceInternal(ExceptionUtils.getStackTrace(throwable), level)
-        }
-
-        private fun refreshPreFileMessages() {
-            preFileMessages.forEach {
-                writeToFile(it)
-            }
-            preFileMessages.clear()
-        }
-
         private fun getStackTrace(): StackTraceElement {
             //We loop through the stacktrace till we get to whoever called the logger. We skip the first element as its java.lang.Thread
             val stackTrace = Thread.currentThread().stackTrace
@@ -167,36 +173,6 @@ class CCLogger {
                     break
             }
             return stackTrace[startIndex]
-        }
-
-        private fun logStacktraceInternal(message: String, level: CCLogLevel) {
-            if(!enabled)
-                return
-
-            if(paused) {
-                pausedMessages.add(CCLogMessage(level, message, LocalDateTime.now(), null, true))
-                return
-            }
-
-            println(message)
-            writeToFile(message)
-            val htmlEscaped = StringEscapeUtils.escapeHtml4(message).replace("\n", "<br>")
-            htmlLog += "<p style='margin-top:0 white-space: nowrap'><font color='${level.getHTMLColor()}'>${htmlEscaped}</font></p>"
-            htmlLog += "<br>"
-        }
-
-        private fun updatePaused() {
-            if(!paused) {
-                pausedMessages.forEach { msg ->
-                    if(!msg.isException) {
-                        logInternal(msg.message, msg.level, msg.time, msg.stackTraceElement ?: throw Exception("Oops! CCLogger 169 issue, stackTraceElement is null!!"))
-                    } else {
-                        logStacktraceInternal(msg.message, msg.level)
-                    }
-                }
-                pausedMessages.clear()
-            }
-
         }
 
         fun enableDebugConsole(enabled: Boolean) {
