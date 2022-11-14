@@ -92,22 +92,19 @@ class CCLogger {
 
             println(level.getAnsiColor() + msg + level.getAnsiReset())
 
-            var finalMsg = StringEscapeUtils.escapeHtml4(msg.toString()).replace(" ", "&nbsp;")
+            var finalMsg = StringEscapeUtils.escapeHtml4(msg).replace(" ", "&nbsp;")
             finalMsg = finalMsg.replace("%newline%", "<br>")
             if(gitHubCodePathURL != null && (gitHubCodeClassPath == null || gitHubCodeClassPath.isNullOrEmpty() || currentStackTrace.className.contains(gitHubCodeClassPath!!))) {
                 //TODO: check that this works once the kotlin port of SnipSniper is complete
                 val extension = File(currentStackTrace.fileName).extension
-                val link = gitHubCodePathURL + currentStackTrace.className.replace("\\.", "/") + ".$extension#L" + currentStackTrace.lineNumber
-                finalMsg = finalMsg.replace(":" + currentStackTrace.lineNumber + "]", ":" + currentStackTrace.lineNumber + " <a href='" + link + "'>@</a>]")
+                val lineNr = currentStackTrace.lineNumber
+                val link = gitHubCodePathURL + currentStackTrace.className.replace("\\.", "/") + ".$extension#L$lineNr"
+                finalMsg = finalMsg.replace(":$lineNr]", ":$lineNr <a href='$link'>@</a>]")
             }
-            val htmlLine = "<p style='margin-top:0 white-space: nowrap'><font color='${level.getHTMLColor()}'>${finalMsg}</font></p>"
-
-            htmlLog += htmlLine
-
+            htmlLog += "<p style='margin-top:0 white-space: nowrap'><font color='${level.getHTMLColor()}'>${finalMsg}</font></p>"
             console?.update()
-
             msg += "\n"
-            writeToFile(msg.toString())
+            writeToFile(msg)
         }
 
         fun logStacktrace(throwable: Exception, level: CCLogLevel) = logStacktrace(message = null, throwable = throwable, level = level)
@@ -169,18 +166,15 @@ class CCLogger {
             val stackTrace = Thread.currentThread().stackTrace
             var startIndex = 1
             for(i in 1 until stackTrace.size) {
-                if(stackTrace[startIndex].className.startsWith(THIS_CLASSPATH))
-                    startIndex++
-                else
-                    break
+                if(stackTrace[startIndex].className.startsWith(THIS_CLASSPATH)) startIndex++
+                else break
             }
             return stackTrace[startIndex]
         }
 
         fun enableDebugConsole(enabled: Boolean) {
             if(enabled) {
-                if(console == null)
-                    console = CCDebugConsole()
+                if(console == null) console = CCDebugConsole()
                 console?.update()
             } else {
                 console?.isVisible = false
