@@ -17,12 +17,6 @@ dependencies {
     implementation("org.capturecoop:CCUtils:1.9.4") //CaptureCoop Common Utils
 }
 
-//Shadow the dependencies into the jar
-tasks.withType<Jar> {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    from(configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) })
-}
-
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
