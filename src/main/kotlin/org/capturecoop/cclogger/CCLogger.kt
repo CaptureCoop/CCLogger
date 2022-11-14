@@ -95,7 +95,9 @@ class CCLogger {
             var finalMsg = StringEscapeUtils.escapeHtml4(msg.toString()).replace(" ", "&nbsp;")
             finalMsg = finalMsg.replace("%newline%", "<br>")
             if(gitHubCodePathURL != null && (gitHubCodeClassPath == null || gitHubCodeClassPath.isNullOrEmpty() || currentStackTrace.className.contains(gitHubCodeClassPath!!))) {
-                val link = gitHubCodePathURL + currentStackTrace.className.replace("\\.", "/") + ".java#L" + currentStackTrace.lineNumber
+                //TODO: check that this works once the kotlin port of SnipSniper is complete
+                val extension = File(currentStackTrace.fileName).extension
+                val link = gitHubCodePathURL + currentStackTrace.className.replace("\\.", "/") + ".$extension#L" + currentStackTrace.lineNumber
                 finalMsg = finalMsg.replace(":" + currentStackTrace.lineNumber + "]", ":" + currentStackTrace.lineNumber + " <a href='" + link + "'>@</a>]")
             }
             val htmlLine = "<p style='margin-top:0 white-space: nowrap'><font color='${level.getHTMLColor()}'>${finalMsg}</font></p>"
