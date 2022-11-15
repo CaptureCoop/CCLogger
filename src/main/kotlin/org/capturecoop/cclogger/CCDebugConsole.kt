@@ -1,7 +1,7 @@
 package org.capturecoop.cclogger
 
-import org.capturecoop.ccutils.utils.CCLinkUtils
 import java.awt.Color
+import java.awt.Desktop
 import java.awt.Font
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
@@ -85,10 +85,9 @@ class CCDebugConsole: JFrame() {
             }
         })
 
-        content.addHyperlinkListener { hle ->
-            if (HyperlinkEvent.EventType.ACTIVATED.equals(hle.eventType)) {
-                CCLinkUtils.openLink(hle.url.toString())
-            }
+        content.addHyperlinkListener {
+            if (HyperlinkEvent.EventType.ACTIVATED.equals(it.eventType))
+                Desktop.getDesktop().browse(it.url.toURI())
         }
 
         isVisible = true
